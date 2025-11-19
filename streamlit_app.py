@@ -5,7 +5,6 @@ import gspread
 # --- DICCIONARIO DE COLORES ---
 # Añade aquí todos tus equipos con su código de color (Hex)
 COLORES_EQUIPOS = {
-    "FC Bayern Munich": "#FF0000", # Rojo ejemplo
     # Si un equipo no está aquí, saldrá Dorado por defecto
 }
 
@@ -227,4 +226,5 @@ with tab3: pagina_estadisticas()
 with tab4: pagina_historial()
 
 st.markdown("---")
+
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
