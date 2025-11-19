@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import gspread
-from datetime import datetime
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
@@ -11,11 +10,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTILOS CSS PERSONALIZADOS ---
+# --- ESTILOS CSS ---
 st.markdown("""
 <style>
     .stApp { background-color: #f0f2f6; }
-    .big-font { font-size: 24px !important; font-weight: bold; }
     .champion-card {
         background-color: #FFD700;
         padding: 20px;
@@ -32,14 +30,15 @@ st.markdown("""
         border-left: 5px solid #ff4b4b;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .leyenda-box {
+    .leyenda-container {
         background-color: #e8f4f8;
         border: 1px solid #d1e7dd;
-        padding: 10px;
-        border-radius: 5px;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
         color: #0f5132;
+        font-size: 0.9rem;
+        line-height: 1.6;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -74,18 +73,6 @@ def obtener_campeon_actual(historial):
                     portador = aspirante
     return portador
 
-def limpiar_numero(valor):
-    """Convierte cualquier formato numérico raro (con comas o puntos) a float seguro"""
-    if valor == "" or valor is None: return 0.0
-    try:
-        # Si ya es un número, devolverlo
-        if isinstance(valor, (int, float)): return float(valor)
-        # Si es string, reemplazar coma por punto (formato ES -> US) y convertir
-        valor_str = str(valor).replace(',', '.')
-        return float(valor_str)
-    except:
-        return 0.0
-
 # --- PÁGINAS ---
 
 def pagina_inicio():
@@ -94,13 +81,13 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # 1. TARJETA DEL CAMPEÓN (Texto corregido)
+    # 1. TARJETA DEL CAMPEÓN
     campeon = obtener_campeon_actual(historial)
     st.markdown(f"""
     <div class="champion-card">
-        <div style="font-size: 1.2rem;">👑 CAMPEÓN ACTUAL 👑</div>
-        <div style="font-size: 3rem; font-weight: 800; margin: 10px 0;">{campeon}</div>
-        <div style="font-size: 0.9rem;">Defendiendo el título actualmente</div>
+        <div style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">🏆 Campeón Actual 🏆</div>
+        <div style="font-size: 3.5rem; font-weight: 800; margin: 10px 0;">{campeon}</div>
+        <div style="font-size: 1rem;">Defendiendo el título actualmente</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -130,45 +117,55 @@ def pagina_clasificacion():
     
     df = pd.DataFrame(data)
     
+    # 1. RENOMBRADO PREVIO (Para poder calcular con nombres cortos)
+    cols_map = {
+        "T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MR",
+        "Destronamientos": "Des", "Intentos": "I"
+        # Nota: No renombramos PPP ni ID porque los vamos a recalcular de cero
+    }
+    df = df.rename(columns=cols_map)
+
+    # 2. RECÁLCULO DE EMERGENCIA (Fix números gigantes)
+    # Convertimos a numérico por seguridad
+    for col in ['P', 'PJ', 'Des', 'I']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
+    # Calculamos PPP (Puntos / Partidos Jugados)
+    df['PPP'] = df.apply(lambda x: x['P'] / x['PJ'] if x['PJ'] > 0 else 0.0, axis=1)
+
+    # Calculamos ID (Destronamientos / Intentos)
+    df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
+
+    # 3. FORMATO VISUAL
     historial = cargar_datos_gsheets("HistorialPartidos")
     campeon = obtener_campeon_actual(historial)
-    
-    # Ordenar y Añadir Posición
+
     if "P" in df.columns:
         df = df.sort_values(by="P", ascending=False).reset_index(drop=True)
+    
     df.insert(0, 'Pos.', range(1, len(df) + 1))
     
-    # Marcar Campeón
     if "Equipo" in df.columns:
         df['Equipo'] = df.apply(lambda row: f"{row['Equipo']} 👑" if row['Equipo'] == campeon else row['Equipo'], axis=1)
     
-    # --- CORRECCIÓN DE DECIMALES ---
-    # Limpiamos primero los datos usando la función auxiliar para evitar el error de 1.000.000%
-    if "PPM" in df.columns:
-        df['PPM'] = df['PPM'].apply(limpiar_numero).map('{:,.2f}'.format)
-    
-    if "Indice Destronamiento" in df.columns:
-        df['Indice Destronamiento'] = df['Indice Destronamiento'].apply(limpiar_numero).map('{:,.2f}%'.format)
+    # Formatear los decimales correctamente ahora que los datos son buenos
+    df['PPP'] = df['PPP'].map('{:,.2f}'.format)
+    df['ID'] = df['ID'].map('{:,.2f}%'.format)
 
-    # Renombrar
-    cols_map = {
-        "T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MR",
-        "Destronamientos": "Des", "Intentos": "I", "Indice Destronamiento": "ID"
-    }
-    df = df.rename(columns=cols_map)
-    
-    # Orden
+    # 4. ORDEN FINAL DE COLUMNAS
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MR", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # --- LEYENDA CORREGIDA ---
-    # Usamos HTML puro para asegurar que se ve todo y no se corta
+    # --- LEYENDA COMPLETA ---
     st.markdown("""
-    <div class="leyenda-box">
-        <b>GLOSARIO:</b> <br>
-        <b>PJ:</b> Partidos Jugados | <b>V/E/D:</b> Victorias/Empates/Derrotas | <b>P:</b> Puntos | <b>PPP:</b> Puntos por Partido <br>
-        <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia <br>
-        🏆 <b>PcT:</b> Partidos con Trofeo | <b>Des:</b> Títulos Ganados | <b>ID:</b> % Éxito en finales
+    <div class="leyenda-container">
+        <div style="font-weight: bold; margin-bottom: 5px;">📖 GLOSARIO DE DATOS:</div>
+        • <b>PJ:</b> Partidos Jugados &nbsp;|&nbsp; <b>V/E/D:</b> Victorias / Empates / Derrotas<br>
+        • <b>P:</b> Puntos Totales &nbsp;|&nbsp; <b>PPP:</b> Promedio de Puntos por Partido<br>
+        • <b>GF/GC/DG:</b> Goles a Favor / En Contra / Diferencia de Goles<br>
+        • 🏆 <b>PcT:</b> Partidos defendiendo el Trofeo &nbsp;|&nbsp; <b>Des:</b> Títulos ganados al campeón<br>
+        • <b>ID (% Éxito):</b> Porcentaje de veces que ganó el título cuando tuvo la oportunidad (Des/I).
     </div>
     """, unsafe_allow_html=True)
     
