@@ -131,24 +131,20 @@ def pagina_clasificacion():
     
     df = pd.DataFrame(data)
     
-    # 1. RENOMBRADO PREVIO (Para poder calcular con nombres cortos)
+    # 1. RENOMBRADO
     cols_map = {
         "T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MR",
         "Destronamientos": "Des", "Intentos": "I"
-        # Nota: No renombramos PPP ni ID porque los vamos a recalcular de cero
     }
     df = df.rename(columns=cols_map)
 
-    # 2. RECÁLCULO DE EMERGENCIA (Fix números gigantes)
-    # Convertimos a numérico por seguridad
+    # 2. RECÁLCULO DE EMERGENCIA
     for col in ['P', 'PJ', 'Des', 'I']:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Calculamos PPP (Puntos / Partidos Jugados)
+    # Calculamos PPP y ID
     df['PPP'] = df.apply(lambda x: x['P'] / x['PJ'] if x['PJ'] > 0 else 0.0, axis=1)
-
-    # Calculamos ID (Destronamientos / Intentos)
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
     # 3. FORMATO VISUAL
@@ -163,22 +159,23 @@ def pagina_clasificacion():
     if "Equipo" in df.columns:
         df['Equipo'] = df.apply(lambda row: f"{row['Equipo']} 👑" if row['Equipo'] == campeon else row['Equipo'], axis=1)
     
-    # Formatear los decimales correctamente ahora que los datos son buenos
     df['PPP'] = df['PPP'].map('{:,.2f}'.format)
     df['ID'] = df['ID'].map('{:,.2f}%'.format)
 
-    # 4. ORDEN FINAL DE COLUMNAS
+    # 4. ORDEN FINAL
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MR", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # --- LEYENDA COMPLETA ---
+    # --- LEYENDA ACTUALIZADA ---
     st.markdown("""
     <div class="leyenda-container">
         <div style="font-weight: bold; margin-bottom: 5px;">📖 GLOSARIO DE DATOS:</div>
         • <b>PJ:</b> Partidos Jugados &nbsp;|&nbsp; <b>V/E/D:</b> Victorias / Empates / Derrotas<br>
         • <b>P:</b> Puntos Totales &nbsp;|&nbsp; <b>PPP:</b> Promedio de Puntos por Partido<br>
         • <b>GF/GC/DG:</b> Goles a Favor / En Contra / Diferencia de Goles<br>
-        • 🏆 <b>PcT:</b> Partidos defendiendo el Trofeo &nbsp;|&nbsp; <b>Des:</b> Títulos ganados al campeón<br>
+        • 🏆 <b>PcT:</b> Partidos defendiendo el Trofeo<br>
+        • <b>Des:</b> Destronamientos (Número de veces que le ha ganado al campeón)<br>
+        • <b>I:</b> Número de intentos para destronar al campeón<br>
         • <b>ID (% Éxito):</b> Porcentaje de veces que ganó el título cuando tuvo la oportunidad (Des/I).
     </div>
     """, unsafe_allow_html=True)
@@ -228,3 +225,4 @@ with tab4: pagina_historial()
 st.markdown("---")
 
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
