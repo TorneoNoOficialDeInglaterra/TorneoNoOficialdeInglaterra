@@ -2,6 +2,13 @@ import streamlit as st
 import pandas as pd
 import gspread
 
+# --- DICCIONARIO DE COLORES ---
+# Añade aquí todos tus equipos con su código de color (Hex)
+COLORES_EQUIPOS = {
+    "FC Bayern Munich": "#FF0000", # Rojo ejemplo
+    # Si un equipo no está aquí, saldrá Dorado por defecto
+}
+
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
     page_title="ToNOI - Resultados",
@@ -81,17 +88,25 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # 1. TARJETA DEL CAMPEÓN
+    # 1. TARJETA DEL CAMPEÓN (Dinámica)
     campeon = obtener_campeon_actual(historial)
+    
+    # Buscamos el color en el diccionario. Si no existe, usa Dorado (#FFD700)
+    color_fondo = COLORES_EQUIPOS.get(campeon, "#FFD700")
+    
+    # Lógica simple para el texto: Si el fondo es negro/oscuro, pon letras blancas.
+    # Si usas colores muy claros, cambia 'white' por 'black' manualmente aquí.
+    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#DarkRed"] else "black"
+
     st.markdown(f"""
-    <div class="champion-card">
-        <div style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">🏆 Campeón Actual 🏆</div>
+    <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
+        <div style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
         <div style="font-size: 3.5rem; font-weight: 800; margin: 10px 0;">{campeon}</div>
-        <div style="font-size: 1rem;">Defendiendo el título actualmente</div>
+        <div style="font-size: 1rem; opacity: 0.9;">Defendiendo el título actualmente</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 2. ÚLTIMO PARTIDO
+    # 2. ÚLTIMO PARTIDO (Esto sigue igual)
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
