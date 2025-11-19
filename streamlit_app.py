@@ -131,10 +131,13 @@ def pagina_clasificacion():
     
     df = pd.DataFrame(data)
     
-    # 1. RENOMBRADO
+    # 1. RENOMBRADO (He cambiado MR por MJ para que coincida con tu leyenda)
     cols_map = {
-        "T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MR",
-        "Destronamientos": "Des", "Intentos": "I"
+        "T": "PJ", 
+        "Partidos con Trofeo": "PcT", 
+        "Mejor Racha": "MJ", # Antes era MR, ahora MJ
+        "Destronamientos": "Des", 
+        "Intentos": "I"
     }
     df = df.rename(columns=cols_map)
 
@@ -143,8 +146,9 @@ def pagina_clasificacion():
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Calculamos PPP y ID
+    # Calculamos PPP
     df['PPP'] = df.apply(lambda x: x['P'] / x['PJ'] if x['PJ'] > 0 else 0.0, axis=1)
+    # Calculamos ID
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
     # 3. FORMATO VISUAL
@@ -162,21 +166,27 @@ def pagina_clasificacion():
     df['PPP'] = df['PPP'].map('{:,.2f}'.format)
     df['ID'] = df['ID'].map('{:,.2f}%'.format)
 
-    # 4. ORDEN FINAL
-    orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MR", "Des", "I", "ID"]
+    # 4. ORDEN FINAL (Con MJ en vez de MR)
+    orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # --- LEYENDA ACTUALIZADA ---
+    # --- LEYENDA ACTUALIZADA CON TUS TEXTOS ---
     st.markdown("""
     <div class="leyenda-container">
-        <div style="font-weight: bold; margin-bottom: 5px;">📖 GLOSARIO DE DATOS:</div>
-        • <b>PJ:</b> Partidos Jugados &nbsp;|&nbsp; <b>V/E/D:</b> Victorias / Empates / Derrotas<br>
-        • <b>P:</b> Puntos Totales &nbsp;|&nbsp; <b>PPP:</b> Promedio de Puntos por Partido<br>
-        • <b>GF/GC/DG:</b> Goles a Favor / En Contra / Diferencia de Goles<br>
-        • 🏆 <b>PcT:</b> Partidos defendiendo el Trofeo<br>
-        • <b>Des:</b> Destronamientos (Número de veces que le ha ganado al campeón)<br>
-        • <b>I:</b> Número de intentos para destronar al campeón<br>
-        • <b>ID (% Éxito):</b> Porcentaje de veces que ganó el título cuando tuvo la oportunidad (Des/I).
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>• <b>PJ:</b> Partidos Jugados</div>
+            <div>• <b>V/E/D:</b> Victorias / Empates / Derrotas</div>
+            <div>• <b>P:</b> Puntos Totales</div>
+            <div>• <b>PPP:</b> Puntos por Partido</div>
+            <div>• <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia</div>
+            <div>• <b>PcT:</b> Partidos con Trofeo</div>
+        </div>
+        <hr style="margin: 10px 0; border-color: #d1e7dd;">
+        <div>• <b>MJ:</b> Mejor racha (número de partidos seguidos con el trofeo en sus vitrinas)</div>
+        <div>• <b>I:</b> Número de intentos para destronar al campeón</div>
+        <div>• <b>Des:</b> Destronamientos (Número de veces que le ha ganado al campeón)</div>
+        <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -225,4 +235,5 @@ with tab4: pagina_historial()
 st.markdown("---")
 
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
 
