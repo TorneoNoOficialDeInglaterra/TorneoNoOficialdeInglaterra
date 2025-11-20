@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import pandas as pd
 import gspread
@@ -51,7 +49,7 @@ st.markdown("""
         border: 1px solid #d1e7dd;
         border-radius: 8px;
         padding: 15px;
-        margin-top: 20px; /* Añadido margen superior para separar de la tabla */
+        margin-bottom: 20px; /* Espacio debajo para separar de la tabla */
         color: #0f5132;
         font-size: 0.9rem;
         line-height: 1.6;
@@ -61,8 +59,7 @@ st.markdown("""
         border: 1px solid #ffeeba; 
         border-radius: 8px; 
         padding: 15px; 
-        margin-top: 20px; /* Añadido margen superior */
-        margin-bottom: 10px;
+        margin-top: 20px; /* Espacio encima para separar de la tabla */
         color: #856404; 
         font-size: 0.9rem;
     }
@@ -184,24 +181,7 @@ def pagina_clasificacion():
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # 1. PRIMERO LA TABLA
-    st.dataframe(df[cols_finales], hide_index=True, use_container_width=True)
-
-    # 2. LUEGO LAS REGLAS
-    html_reglas = """
-    <div class="reglas-container">
-        <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
-        <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
-            <li><b>Victoria:</b> 2 Puntos</li>
-            <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
-            <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
-            <li><b>Derrota:</b> 0 Puntos</li>
-        </ul>
-    </div>
-    """
-    st.markdown(html_reglas, unsafe_allow_html=True)
-
-    # 3. AL FINAL LA LEYENDA
+    # 1. PRIMERO EL GLOSARIO (LEYENDA)
     html_leyenda = """
     <div class="leyenda-container">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
@@ -221,6 +201,23 @@ def pagina_clasificacion():
     </div>
     """
     st.markdown(html_leyenda, unsafe_allow_html=True)
+
+    # 2. LUEGO LA TABLA
+    st.dataframe(df[cols_finales], hide_index=True, use_container_width=True)
+
+    # 3. AL FINAL LAS REGLAS DE PUNTUACIÓN
+    html_reglas = """
+    <div class="reglas-container">
+        <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+            <li><b>Victoria:</b> 2 Puntos</li>
+            <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
+            <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
+            <li><b>Derrota:</b> 0 Puntos</li>
+        </ul>
+    </div>
+    """
+    st.markdown(html_reglas, unsafe_allow_html=True)
 
 def pagina_estadisticas():
     st.title("⭐ Salón de la Fama")
