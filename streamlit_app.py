@@ -24,17 +24,72 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTILOS CSS (LIMPIEZA TOTAL) ---
+# --- ESTILOS CSS (DISEÑO PRO) ---
 st.markdown("""
 <style>
-    /* 1. OCULTAR ELEMENTOS DE STREAMLIT (Esquinas y pie de página) */
+    /* 1. LIMPIEZA DE INTERFAZ */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stAppDeployButton {display: none;}
     
+    /* ESTO QUITA EL HUECO BLANCO DE ARRIBA */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 5rem !important;
+    }
+    
     /* 2. ESTILOS DE LA APP */
     .stApp { background-color: #f0f2f6; }
+    
+    /* ESTILOS DEL HEADER PERSONALIZADO */
+    .custom-header {
+        text-align: center;
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+        border-bottom: 4px solid #31333F;
+    }
+    .header-logo {
+        width: 80px;
+        height: auto;
+        margin-bottom: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    .header-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #31333F;
+        margin: 0;
+        line-height: 1.2;
+        text-transform: uppercase;
+    }
+    .header-socials {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .social-btn {
+        text-decoration: none !important;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s;
+        border: none;
+    }
+    .social-btn:hover { transform: scale(1.05); opacity: 0.9; }
+    
+    .btn-x { background-color: #000000; color: white !important; }
+    .btn-wa { background-color: #25D366; color: white !important; }
+
+    /* TARJETAS */
     .champion-card {
         background-color: #FFD700;
         padding: 20px;
@@ -103,10 +158,35 @@ def obtener_campeon_actual(historial):
                     portador = aspirante
     return portador
 
+# --- HEADER GLOBAL ---
+def mostrar_header():
+    # URLs proporcionadas
+    img_url = "https://github.com/TorneoNoOficialDeInglaterra/TorneoNoOficialdeInglaterra/blob/main/logo.png?raw=true"
+    x_url = "https://x.com/ToNOI_oficial"
+    wa_url = "https://whatsapp.com/channel/0029Vb6s1kSJ93wblhQfYY3q"
+    
+    html_header = f"""
+    <div class="custom-header">
+        <img src="{img_url}" class="header-logo">
+        <div class="header-title">Torneo No Oficial de Inglaterra</div>
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">(ToNOI)</div>
+        
+        <div class="header-socials">
+            <a href="{x_url}" target="_blank" class="social-btn btn-x">
+                <span>𝕏</span> Síguenos
+            </a>
+            <a href="{wa_url}" target="_blank" class="social-btn btn-wa">
+                <span>💬</span> WhatsApp
+            </a>
+        </div>
+    </div>
+    """
+    st.markdown(html_header, unsafe_allow_html=True)
+
 # --- PÁGINAS ---
 
 def pagina_inicio():
-    st.title("⚽ ToNOI - Panel Central")
+    # Eliminado el título antiguo porque ya tenemos el Header Global
     
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
@@ -121,8 +201,7 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # --- IMPORTANTE: HTML SIN ESPACIOS A LA IZQUIERDA ---
-    # He pegado el HTML a la izquierda del todo para evitar que salga como texto
+    # Tarjeta Campeón
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
     <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -153,18 +232,16 @@ def pagina_inicio():
         st.markdown(html_partido, unsafe_allow_html=True)
 
 def pagina_clasificacion():
-    st.title("📊 Clasificación Oficial")
+    st.header("📊 Clasificación Oficial") # Header más pequeño
     
     data = cargar_datos_gsheets("Hoja1")
     if not data: st.warning("No hay datos disponibles."); return
     
     df = pd.DataFrame(data)
     
-    # Renombrar columnas
     cols_map = {"T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MJ", "Destronamientos": "Des", "Intentos": "I"}
     df = df.rename(columns=cols_map)
 
-    # Recálculo numérico
     for col in ['P', 'PJ', 'Des', 'I']:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -172,7 +249,6 @@ def pagina_clasificacion():
     df['PPP'] = df.apply(lambda x: x['P'] / x['PJ'] if x['PJ'] > 0 else 0.0, axis=1)
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
-    # Visualización
     historial = cargar_datos_gsheets("HistorialPartidos")
     campeon = obtener_campeon_actual(historial)
 
@@ -190,7 +266,6 @@ def pagina_clasificacion():
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # 1. PRIMERO EL GLOSARIO (LEYENDA)
     html_leyenda = """
 <div class="leyenda-container">
     <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
@@ -210,11 +285,8 @@ def pagina_clasificacion():
 </div>
 """
     st.markdown(html_leyenda, unsafe_allow_html=True)
-
-    # 2. LUEGO LA TABLA
     st.dataframe(df[cols_finales], hide_index=True, use_container_width=True)
 
-    # 3. AL FINAL LAS REGLAS DE PUNTUACIÓN
     html_reglas = """
 <div class="reglas-container">
     <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
@@ -229,11 +301,11 @@ def pagina_clasificacion():
     st.markdown(html_reglas, unsafe_allow_html=True)
 
 def pagina_estadisticas():
-    st.title("⭐ Salón de la Fama")
+    st.header("⭐ Salón de la Fama")
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("👟 Goleadores (G+A)")
+        st.subheader("👟 Goleadores")
         goles = cargar_datos_gsheets("ClasificacionGoleadores")
         if goles:
             df_g = pd.DataFrame(goles).sort_values(by="G/A", ascending=False)
@@ -251,7 +323,7 @@ def pagina_estadisticas():
             st.caption("Sin datos.")
 
 def pagina_historial():
-    st.title("📜 Historial Completo")
+    st.header("📜 Historial Completo")
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.warning("No hay partidos."); return
     
@@ -259,7 +331,12 @@ def pagina_historial():
     cols = [c for c in ["Fecha", "Equipo Ganador", "Resultado", "Equipo Perdedor", "ResultadoManual"] if c in df.columns]
     st.dataframe(df[cols].iloc[::-1], hide_index=True, use_container_width=True)
 
-# --- MENÚ ---
+# --- EJECUCIÓN PRINCIPAL ---
+
+# 1. Mostrar el Header Global (Lo primero de todo)
+mostrar_header()
+
+# 2. Mostrar el Menú de Pestañas
 tab1, tab2, tab3, tab4 = st.tabs(["🏠 Inicio", "📊 Clasificación", "⭐ Estadísticas", "📜 Historial"])
 
 with tab1: pagina_inicio()
@@ -267,5 +344,7 @@ with tab2: pagina_clasificacion()
 with tab3: pagina_estadisticas()
 with tab4: pagina_historial()
 
+# Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
