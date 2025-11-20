@@ -24,9 +24,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS (LIMPIEZA TOTAL) ---
 st.markdown("""
 <style>
+    /* 1. OCULTAR ELEMENTOS DE STREAMLIT (Esquinas y pie de página) */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stAppDeployButton {display: none;}
+    
+    /* 2. ESTILOS DE LA APP */
     .stApp { background-color: #f0f2f6; }
     .champion-card {
         background-color: #FFD700;
@@ -49,7 +56,7 @@ st.markdown("""
         border: 1px solid #d1e7dd;
         border-radius: 8px;
         padding: 15px;
-        margin-bottom: 20px; /* Espacio debajo para separar de la tabla */
+        margin-bottom: 20px;
         color: #0f5132;
         font-size: 0.9rem;
         line-height: 1.6;
@@ -59,7 +66,7 @@ st.markdown("""
         border: 1px solid #ffeeba; 
         border-radius: 8px; 
         padding: 15px; 
-        margin-top: 20px; /* Espacio encima para separar de la tabla */
+        margin-top: 20px;
         color: #856404; 
         font-size: 0.9rem;
     }
@@ -114,30 +121,32 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
+    # --- IMPORTANTE: HTML SIN ESPACIOS A LA IZQUIERDA ---
+    # He pegado el HTML a la izquierda del todo para evitar que salga como texto
     html_campeon = f"""
-    <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
-        <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
-        <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
-        <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
-        <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
-    </div>
-    """
+<div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
+    <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
+    <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
+    <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
+    <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
+</div>
+"""
     st.markdown(html_campeon, unsafe_allow_html=True)
 
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
     html_partido = f"""
-    <div class="match-card">
-        <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
-        <div style="font-size: 1.5rem; font-weight: bold;">
-            {ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
-        </div>
-        <div style="font-size: 1.2rem; margin-top: 5px;">
-            Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
-        </div>
+<div class="match-card">
+    <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
+    <div style="font-size: 1.5rem; font-weight: bold;">
+        {ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
     </div>
-    """
+    <div style="font-size: 1.2rem; margin-top: 5px;">
+        Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
+    </div>
+</div>
+"""
     
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
@@ -183,23 +192,23 @@ def pagina_clasificacion():
     
     # 1. PRIMERO EL GLOSARIO (LEYENDA)
     html_leyenda = """
-    <div class="leyenda-container">
-        <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>• <b>PJ:</b> Partidos Jugados</div>
-            <div>• <b>V/E/D:</b> Victorias / Empates / Derrotas</div>
-            <div>• <b>P:</b> Puntos Totales</div>
-            <div>• <b>PPP:</b> Puntos por Partido</div>
-            <div>• <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia</div>
-            <div>• <b>PcT:</b> Partidos con Trofeo</div>
-        </div>
-        <hr style="margin: 10px 0; border-color: #d1e7dd;">
-        <div>• <b>MJ:</b> Mejor racha (partidos seguidos con el trofeo)</div>
-        <div>• <b>I:</b> Número de intentos para destronar al campeón</div>
-        <div>• <b>Des:</b> Destronamientos (títulos ganados)</div>
-        <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
+<div class="leyenda-container">
+    <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>• <b>PJ:</b> Partidos Jugados</div>
+        <div>• <b>V/E/D:</b> Victorias / Empates / Derrotas</div>
+        <div>• <b>P:</b> Puntos Totales</div>
+        <div>• <b>PPP:</b> Puntos por Partido</div>
+        <div>• <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia</div>
+        <div>• <b>PcT:</b> Partidos con Trofeo</div>
     </div>
-    """
+    <hr style="margin: 10px 0; border-color: #d1e7dd;">
+    <div>• <b>MJ:</b> Mejor racha (partidos seguidos con el trofeo)</div>
+    <div>• <b>I:</b> Número de intentos para destronar al campeón</div>
+    <div>• <b>Des:</b> Destronamientos (títulos ganados)</div>
+    <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
+</div>
+"""
     st.markdown(html_leyenda, unsafe_allow_html=True)
 
     # 2. LUEGO LA TABLA
@@ -207,16 +216,16 @@ def pagina_clasificacion():
 
     # 3. AL FINAL LAS REGLAS DE PUNTUACIÓN
     html_reglas = """
-    <div class="reglas-container">
-        <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
-        <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
-            <li><b>Victoria:</b> 2 Puntos</li>
-            <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
-            <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
-            <li><b>Derrota:</b> 0 Puntos</li>
-        </ul>
-    </div>
-    """
+<div class="reglas-container">
+    <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
+    <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+        <li><b>Victoria:</b> 2 Puntos</li>
+        <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
+        <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
+        <li><b>Derrota:</b> 0 Puntos</li>
+    </ul>
+</div>
+"""
     st.markdown(html_reglas, unsafe_allow_html=True)
 
 def pagina_estadisticas():
