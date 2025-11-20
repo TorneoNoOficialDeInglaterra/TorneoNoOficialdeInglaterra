@@ -100,12 +100,12 @@ def pagina_inicio():
     logos = globals().get('LOGOS_EQUIPOS', {})
     
     color_fondo = colores.get(campeon, "#FFD700") 
-    # Logo por defecto (Copa) si no encuentra el del equipo
     logo_url = logos.get(campeon, "https://cdn-icons-png.flaticon.com/512/1603/1603859.png") 
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D"] else "black"
 
-    # --- AQUÍ EMPIEZA EL HTML ---
+    # --- AQUÍ EMPIEZA EL HTML CORREGIDO ---
+    # El <img> ahora está directamente dentro del champion-card, no en un div aparte
     st.markdown(f"""
     <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
         <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -134,7 +134,7 @@ def pagina_inicio():
             </div>
         </div>
         """, unsafe_allow_html=True)
-
+        
 def pagina_clasificacion():
     st.title("📊 Clasificación Oficial")
     
@@ -246,3 +246,4 @@ with tab4: pagina_historial()
 
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
