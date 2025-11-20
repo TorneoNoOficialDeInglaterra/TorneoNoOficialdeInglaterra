@@ -17,10 +17,10 @@ LOGOS_EQUIPOS = {
     # Añade más logos aquí...
 }
 
-# --- CONFIGURACIÓN DE LA PÁGINA ---
+# --- CONFIGURACIÓN DE LA PÁGINA (ICONO CAMBIADO) ---
 st.set_page_config(
     page_title="ToNOI - Resultados",
-    page_icon="⚽",
+    page_icon="https://github.com/TorneoNoOficialDeInglaterra/TorneoNoOficialdeInglaterra/blob/main/logo.png?raw=true",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -294,7 +294,6 @@ Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
         st.markdown(html_partido, unsafe_allow_html=True)
 
     # --- 3. INFORMACIÓN Y VIDEO (Abajo) ---
-    # Reutilizamos las mismas columnas para mantener la alineación
     with col2:
         html_desc = """
 <div class="desc-card">
