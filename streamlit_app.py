@@ -1,12 +1,16 @@
 import streamlit as st
 import pandas as pd
 import gspread
+from datetime import datetime
 
 # --- 1. DICCIONARIO DE COLORES ---
 COLORES_EQUIPOS = {
     "FC Bayern Munich": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
+    "Manchester City": "#6CABDD",
+    "Liverpool": "#C8102E",
+    "Arsenal": "#EF0107",
     # Añade más equipos aquí...
 }
 
@@ -175,23 +179,29 @@ def cargar_datos_gsheets(nombre_hoja):
     except Exception as e:
         return []
 
-# --- LÓGICA DE AYUDA ---
-def obtener_campeon_actual(historial):
-    if not historial: return "Vacante"
+# --- LÓGICA DE AYUDA (MODIFICADA PARA SACAR LA FECHA) ---
+def obtener_datos_campeon(historial):
+    if not historial: return "Vacante", None
     portador = None
+    fecha_inicio = None
+    
     for partido in historial:
         ganador = partido.get('Equipo Ganador')
         perdedor = partido.get('Equipo Perdedor')
         resultado = partido.get('Resultado')
+        fecha_partido = partido.get('Fecha')
         
         if not portador:
             portador = ganador
+            fecha_inicio = fecha_partido
         else:
             if portador == ganador or portador == perdedor:
                 aspirante = ganador if perdedor == portador else perdedor
                 if resultado == "Victoria" and ganador == aspirante:
                     portador = aspirante
-    return portador
+                    fecha_inicio = fecha_partido # Se reinicia el contador con el nuevo campeón
+                    
+    return portador, fecha_inicio
 
 # --- HEADER GLOBAL ---
 def mostrar_header():
@@ -225,8 +235,28 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    campeon = obtener_campeon_actual(historial)
+    # Obtenemos nombre y fecha
+    campeon, fecha_inicio_str = obtener_datos_campeon(historial)
     
+    # --- CÁLCULO DEL TIEMPO ---
+    texto_tiempo = "Recién coronado"
+    if fecha_inicio_str:
+        try:
+            # Convertimos el string de fecha a objeto fecha
+            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d %H:%M:%S")
+            ahora = datetime.now()
+            diferencia = ahora - fecha_inicio
+            
+            dias = diferencia.days
+            segundos_totales = diferencia.seconds
+            horas = segundos_totales // 3600
+            minutos = (segundos_totales % 3600) // 60
+            segundos = segundos_totales % 60
+            
+            texto_tiempo = f"⏳ {dias} días, {horas}h {minutos}m {segundos}s"
+        except:
+            texto_tiempo = "Tiempo desconocido"
+
     colores = globals().get('COLORES_EQUIPOS', {}) 
     logos = globals().get('LOGOS_EQUIPOS', {})
     
@@ -235,18 +265,21 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # 1. TARJETA DEL CAMPEÓN (ANCHO COMPLETO)
+    # 1. TARJETA DEL CAMPEÓN (CON CONTADOR)
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
 <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
 <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
+<div style="font-size: 1.1rem; font-weight: bold; margin-top: 5px; background-color: rgba(0,0,0,0.2); display: inline-block; padding: 5px 15px; border-radius: 15px;">
+    {texto_tiempo}
+</div>
 <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
 </div>
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # 2. DESCRIPCIÓN Y VIDEO (AHORA EN ANCHO COMPLETO)
+    # 2. DESCRIPCIÓN Y VIDEO
     html_desc = """
 <div class="desc-card">
 <div class="desc-title">¿Qué es el ToNOI?</div>
@@ -270,7 +303,7 @@ def pagina_inicio():
     st.video("https://youtu.be/SpRxKO4BRfk")
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 3. ÚLTIMO PARTIDO (ESTE SÍ LO CENTRAMOS EN COLUMNAS PARA QUE NO SE VEA GIGANTE)
+    # 3. ÚLTIMO PARTIDO
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
@@ -309,7 +342,7 @@ def pagina_clasificacion():
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
     historial = cargar_datos_gsheets("HistorialPartidos")
-    campeon = obtener_campeon_actual(historial)
+    campeon, _ = obtener_datos_campeon(historial) # Usamos la nueva función
 
     if "P" in df.columns:
         df = df.sort_values(by="P", ascending=False).reset_index(drop=True)
