@@ -248,7 +248,7 @@ def pagina_inicio():
             horas = segundos_totales // 3600
             minutos = (segundos_totales % 3600) // 60
             
-            texto_tiempo = f"⏳ {dias} días, {horas}h {minutos}m defendiendo"
+            texto_tiempo = f"⏳ {dias} días, {horas}h, {minutos}m defendiendo el título"
         except Exception as e:
             # Si falla, mostramos la fecha tal cual para saber qué pasa, o un texto genérico
             texto_tiempo = f"Desde: {fecha_inicio_str}"
