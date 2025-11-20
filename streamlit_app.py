@@ -42,36 +42,54 @@ st.markdown("""
     /* 2. ESTILOS DE LA APP */
     .stApp { background-color: #f0f2f6; }
     
-    /* ESTILOS DEL HEADER PERSONALIZADO */
+    /* --- NUEVO HEADER TIPO SANDWICH --- */
     .custom-header {
-        text-align: center;
+        display: flex;
+        justify-content: space-between; /* Separa los elementos a los extremos */
+        align-items: center; /* Centra verticalmente */
         background-color: white;
-        padding: 20px;
+        padding: 15px 25px;
         border-radius: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         margin-bottom: 25px;
         border-bottom: 4px solid #31333F;
     }
-    .header-logo {
-        width: 80px;
-        height: auto;
-        margin-bottom: 10px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    /* Secciones laterales para los logos */
+    .header-side {
+        flex: 0 0 auto;
     }
+    .header-logo {
+        width: 90px; /* Un poco más grandes */
+        height: auto;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        display: block;
+    }
+    /* Sección central */
+    .header-center {
+        flex: 1;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
+    }
+    /* Título ROJO y GRANDE */
     .header-title {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #31333F;
+        font-size: 2.2rem; /* Mucho más grande */
+        font-weight: 900; /* Más grueso */
+        color: #D00000; /* ROJO INTENSO */
         margin: 0;
-        line-height: 1.2;
+        line-height: 1.1;
         text-transform: uppercase;
+    }
+    .header-subtitle {
+        font-size: 1rem; color: #555; margin-bottom: 15px; font-weight: bold;
     }
     .header-socials {
         display: flex;
-        justify-content: center;
         gap: 15px;
-        margin-top: 15px;
     }
+    /* Botones sociales */
     .social-btn {
         text-decoration: none !important;
         padding: 8px 16px;
@@ -83,13 +101,13 @@ st.markdown("""
         gap: 8px;
         transition: transform 0.2s;
         border: none;
+        white-space: nowrap;
     }
     .social-btn:hover { transform: scale(1.05); opacity: 0.9; }
-    
     .btn-x { background-color: #000000; color: white !important; }
     .btn-wa { background-color: #25D366; color: white !important; }
 
-    /* TARJETAS */
+    /* --- TARJETAS --- */
     .champion-card {
         background-color: #FFD700;
         padding: 20px;
@@ -125,6 +143,12 @@ st.markdown("""
         color: #856404; 
         font-size: 0.9rem;
     }
+    /* Ajuste para móviles: en pantallas pequeñas, apilar verticalmente */
+    @media (max-width: 768px) {
+        .custom-header { flex-direction: column; gap: 15px; padding: 15px; }
+        .header-title { font-size: 1.5rem; }
+        .header-logo { width: 70px; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -158,26 +182,29 @@ def obtener_campeon_actual(historial):
                     portador = aspirante
     return portador
 
-# --- HEADER GLOBAL ---
+# --- HEADER GLOBAL (ESTRUCTURA SANDWICH) ---
 def mostrar_header():
-    # URLs proporcionadas
     img_url = "https://github.com/TorneoNoOficialDeInglaterra/TorneoNoOficialdeInglaterra/blob/main/logo.png?raw=true"
     x_url = "https://x.com/ToNOI_oficial"
     wa_url = "https://whatsapp.com/channel/0029Vb6s1kSJ93wblhQfYY3q"
     
-    # IMPORTANTE: Todo el HTML pegado a la izquierda sin espacios
+    # IMPORTANTE: Todo el HTML pegado a la izquierda.
+    # Estructura: LogoIzq - Centro - LogoDer
     html_header = f"""
 <div class="custom-header">
+<div class="header-side">
 <img src="{img_url}" class="header-logo">
+</div>
+<div class="header-center">
 <div class="header-title">Torneo No Oficial de Inglaterra</div>
-<div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">(ToNOI)</div>
+<div class="header-subtitle">(ToNOI)</div>
 <div class="header-socials">
-<a href="{x_url}" target="_blank" class="social-btn btn-x">
-<span>𝕏</span> Síguenos
-</a>
-<a href="{wa_url}" target="_blank" class="social-btn btn-wa">
-<span>💬</span> WhatsApp
-</a>
+<a href="{x_url}" target="_blank" class="social-btn btn-x"><span>𝕏</span> Síguenos</a>
+<a href="{wa_url}" target="_blank" class="social-btn btn-wa"><span>💬</span> WhatsApp</a>
+</div>
+</div>
+<div class="header-side">
+<img src="{img_url}" class="header-logo">
 </div>
 </div>
 """
@@ -199,7 +226,6 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # IMPORTANTE: HTML pegado a la izquierda
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -264,7 +290,6 @@ def pagina_clasificacion():
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # IMPORTANTE: HTML pegado a la izquierda
     html_leyenda = """
 <div class="leyenda-container">
 <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
@@ -346,4 +371,3 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
-
