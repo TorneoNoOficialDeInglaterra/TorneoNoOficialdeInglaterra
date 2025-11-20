@@ -8,9 +8,6 @@ COLORES_EQUIPOS = {
     "FC Bayern Munich": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
-    "Manchester City": "#6CABDD",
-    "Liverpool": "#C8102E",
-    "Arsenal": "#EF0107",
     # Añade más equipos aquí...
 }
 
@@ -235,27 +232,26 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # Obtenemos nombre y fecha
     campeon, fecha_inicio_str = obtener_datos_campeon(historial)
     
-    # --- CÁLCULO DEL TIEMPO ---
+    # --- CÁLCULO DEL TIEMPO (CORREGIDO Y ROBUSTO) ---
     texto_tiempo = "Recién coronado"
     if fecha_inicio_str:
         try:
-            # Convertimos el string de fecha a objeto fecha
-            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d %H:%M:%S")
-            ahora = datetime.now()
+            # Usamos pandas para entender cualquier formato de fecha (DD/MM/YYYY o YYYY-MM-DD)
+            fecha_inicio = pd.to_datetime(fecha_inicio_str, dayfirst=True)
+            ahora = pd.Timestamp.now()
             diferencia = ahora - fecha_inicio
             
             dias = diferencia.days
-            segundos_totales = diferencia.seconds
+            segundos_totales = difference = diferencia.seconds
             horas = segundos_totales // 3600
             minutos = (segundos_totales % 3600) // 60
-            segundos = segundos_totales % 60
             
-            texto_tiempo = f"⏳ {dias} días, {horas}h {minutos}m {segundos}s"
-        except:
-            texto_tiempo = "Tiempo desconocido"
+            texto_tiempo = f"⏳ {dias} días, {horas}h {minutos}m defendiendo"
+        except Exception as e:
+            # Si falla, mostramos la fecha tal cual para saber qué pasa, o un texto genérico
+            texto_tiempo = f"Desde: {fecha_inicio_str}"
 
     colores = globals().get('COLORES_EQUIPOS', {}) 
     logos = globals().get('LOGOS_EQUIPOS', {})
@@ -265,7 +261,7 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # 1. TARJETA DEL CAMPEÓN (CON CONTADOR)
+    # 1. TARJETA DEL CAMPEÓN
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -318,7 +314,6 @@ Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
 </div>
 </div>
 """
-    # Usamos columnas solo para este elemento
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         st.markdown(html_partido, unsafe_allow_html=True)
@@ -342,7 +337,7 @@ def pagina_clasificacion():
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
     historial = cargar_datos_gsheets("HistorialPartidos")
-    campeon, _ = obtener_datos_campeon(historial) # Usamos la nueva función
+    campeon, _ = obtener_datos_campeon(historial)
 
     if "P" in df.columns:
         df = df.sort_values(by="P", ascending=False).reset_index(drop=True)
