@@ -246,35 +246,32 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # 2. DESCRIPCIÓN Y VIDEO (Nuevo)
-    # Usamos columnas para centrarlo igual que la tarjeta del último partido
+    # 2. DESCRIPCIÓN Y VIDEO (CORREGIDO SIN ESPACIOS)
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
-        # Tarjeta de texto
+        # ¡AQUÍ ESTABA EL ERROR! AHORA SIN ESPACIOS A LA IZQUIERDA:
         html_desc = """
 <div class="desc-card">
-    <div class="desc-title">¿Qué es el ToNOI?</div>
-    <p><b>¿Te imaginas que pasaría si en el fútbol se decidiera quién es el campeón como se hace en el boxeo?</b> Pues nosotros estamos aquí para contarlo.</p>
-    <p>El <b>Torneo No Oficial de Inglaterra (ToNOI)</b> es un campeonato en el que para ser campeón debes ganar al actual campeón. No existen fase de grupos, eliminatorias ni nada por el estilo, solo finales. Si te enfrentas al equipo campeón y resultas victorioso, serás el nuevo <b>CAMPEÓN NO OFICIAL DE INGLATERRA</b> y comenzarás a hacer historia hasta verte derrotado por otro equipo.</p>
-    
-    <div class="desc-title" style="font-size: 1rem; margin-top: 15px;">📜 Reglamento Oficial</div>
-    <ul style="margin-left: 20px; padding: 0;">
-        <li>Si ganas al actual campeón, te conviertes en campeón.</li>
-        <li>Solo valen partidos oficiales.</li>
-        <li>Si en una liga no hay registros oficiales se contará el siguiente partido oficial.</li>
-        <li>En caso de desaparición del club campeón, el título vuelve al anterior campeón.</li>
-        <li>Todas las prórrogas cuentan.</li>
-        <li><b>Los penaltis cuentan:</b> si el partido acaba en empate global o requiere desempate, el ganador se lleva el título.</li>
-    </ul>
-    <p style="margin-top: 15px; text-align: center; font-weight: bold;">Sumérgete con nosotros en esta aventura y disfruta del fútbol como nunca.</p>
+<div class="desc-title">¿Qué es el ToNOI?</div>
+<p><b>¿Te imaginas que pasaría si en el fútbol se decidiera quién es el campeón como se hace en el boxeo?</b> Pues nosotros estamos aquí para contarlo.</p>
+<p>El <b>Torneo No Oficial de Inglaterra (ToNOI)</b> es un campeonato en el que para ser campeón debes ganar al actual campeón. No existen fase de grupos, eliminatorias ni nada por el estilo, solo finales. Si te enfrentas al equipo campeón y resultas victorioso, serás el nuevo <b>CAMPEÓN NO OFICIAL DE INGLATERRA</b> y comenzarás a hacer historia hasta verte derrotado por otro equipo.</p>
+<div class="desc-title" style="font-size: 1rem; margin-top: 15px;">📜 Reglamento Oficial</div>
+<ul style="margin-left: 20px; padding: 0;">
+<li>Si ganas al actual campeón, te conviertes en campeón.</li>
+<li>Solo valen partidos oficiales.</li>
+<li>Si en una liga no hay registros oficiales se contará el siguiente partido oficial.</li>
+<li>En caso de desaparición del club campeón, el título vuelve al anterior campeón.</li>
+<li>Todas las prórrogas cuentan.</li>
+<li><b>Los penaltis cuentan:</b> si el partido acaba en empate global o requiere desempate, el ganador se lleva el título.</li>
+</ul>
+<p style="margin-top: 15px; text-align: center; font-weight: bold;">Sumérgete con nosotros en esta aventura y disfruta del fútbol como nunca.</p>
 </div>
 """
         st.markdown(html_desc, unsafe_allow_html=True)
         
-        # Video de YouTube embebido
         st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
         st.video("https://youtu.be/SpRxKO4BRfk")
-        st.markdown("<br>", unsafe_allow_html=True) # Espacio extra
+        st.markdown("<br>", unsafe_allow_html=True)
 
     # 3. ÚLTIMO PARTIDO
     ultimo = historial[-1]
