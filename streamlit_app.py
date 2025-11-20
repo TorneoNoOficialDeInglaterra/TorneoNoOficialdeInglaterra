@@ -2,18 +2,18 @@ import streamlit as st
 import pandas as pd
 import gspread
 
-# --- 1. DICCIONARIO DE COLORES (Añade aquí tus equipos) ---
+# --- 1. DICCIONARIO DE COLORES ---
 COLORES_EQUIPOS = {
     "FC Bayern Munich": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
-    # Añade más aquí...
+    # Añade más equipos aquí...
 }
 
-# --- 2. DICCIONARIO DE ESCUDOS (Añade aquí tus enlaces) ---
+# --- 2. DICCIONARIO DE ESCUDOS ---
 LOGOS_EQUIPOS = {
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
-    # Añade más aquí...
+    # Añade más logos aquí...
 }
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
@@ -49,10 +49,20 @@ st.markdown("""
         border: 1px solid #d1e7dd;
         border-radius: 8px;
         padding: 15px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         color: #0f5132;
         font-size: 0.9rem;
         line-height: 1.6;
+    }
+    /* Clase extra para la caja de reglas (Amarilla) */
+    .reglas-container {
+        background-color: #fff3cd; 
+        border: 1px solid #ffeeba; 
+        border-radius: 8px; 
+        padding: 15px; 
+        margin-bottom: 15px; 
+        color: #856404; 
+        font-size: 0.9rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -95,7 +105,6 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # --- LÓGICA DEL CAMPEÓN ---
     campeon = obtener_campeon_actual(historial)
     
     colores = globals().get('COLORES_EQUIPOS', {}) 
@@ -104,10 +113,8 @@ def pagina_inicio():
     color_fondo = colores.get(campeon, "#FFD700") 
     logo_url = logos.get(campeon, "https://cdn-icons-png.flaticon.com/512/1603/1603859.png") 
     
-    # Decidir color de texto (Blanco o Negro)
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # --- HTML DEL CAMPEÓN (Separado en variable para evitar errores) ---
     html_campeon = f"""
     <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
         <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -118,11 +125,9 @@ def pagina_inicio():
     """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # --- ÚLTIMO PARTIDO ---
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
-    # HTML del Partido (Separado en variable)
     html_partido = f"""
     <div class="match-card">
         <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
@@ -177,7 +182,21 @@ def pagina_clasificacion():
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # HTML Leyenda (Separado en variable)
+    # --- 1. HTML REGLAS DE PUNTUACIÓN (Nuevo) ---
+    html_reglas = """
+    <div class="reglas-container">
+        <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+            <li><b>Victoria:</b> 2 Puntos</li>
+            <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
+            <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
+            <li><b>Derrota:</b> 0 Puntos</li>
+        </ul>
+    </div>
+    """
+    st.markdown(html_reglas, unsafe_allow_html=True)
+
+    # --- 2. HTML LEYENDA ---
     html_leyenda = """
     <div class="leyenda-container">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
@@ -190,13 +209,14 @@ def pagina_clasificacion():
             <div>• <b>PcT:</b> Partidos con Trofeo</div>
         </div>
         <hr style="margin: 10px 0; border-color: #d1e7dd;">
-        <div>• <b>MJ:</b> Mejor racha (número de partidos seguidos con el trofeo en sus vitrinas)</div>
+        <div>• <b>MJ:</b> Mejor racha (partidos seguidos con el trofeo)</div>
         <div>• <b>I:</b> Número de intentos para destronar al campeón</div>
-        <div>• <b>Des:</b> Destronamientos (Número de veces que le ha ganado al campeón)</div>
+        <div>• <b>Des:</b> Destronamientos (títulos ganados)</div>
         <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
     </div>
     """
     st.markdown(html_leyenda, unsafe_allow_html=True)
+    
     st.dataframe(df[cols_finales], hide_index=True, use_container_width=True)
 
 def pagina_estadisticas():
@@ -240,4 +260,3 @@ with tab4: pagina_historial()
 
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
-
