@@ -2,16 +2,18 @@ import streamlit as st
 import pandas as pd
 import gspread
 
-# --- DICCIONARIO DE COLORES ---
-# Añade aquí todos tus equipos con su código de color (Hex)
+# --- 1. DICCIONARIO DE COLORES (Añade aquí tus equipos) ---
 COLORES_EQUIPOS = {
-    # Si un equipo no está aquí, saldrá Dorado por defecto
+    "FC Bayern Munich": "#DC052D",
+    "Real Madrid": "#000000",
+    "FC Barcelona": "#A50044",
+    # Añade más aquí...
 }
 
-# --- DICCIONARIO DE ESCUDOS (Logos) ---
+# --- 2. DICCIONARIO DE ESCUDOS (Añade aquí tus enlaces) ---
 LOGOS_EQUIPOS = {
-    # He puesto el enlace directo al PNG de Wikipedia
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+    # Añade más aquí...
 }
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
@@ -93,7 +95,7 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # 1. LOGOS Y COLORES
+    # --- LÓGICA DEL CAMPEÓN ---
     campeon = obtener_campeon_actual(historial)
     
     colores = globals().get('COLORES_EQUIPOS', {}) 
@@ -102,39 +104,41 @@ def pagina_inicio():
     color_fondo = colores.get(campeon, "#FFD700") 
     logo_url = logos.get(campeon, "https://cdn-icons-png.flaticon.com/512/1603/1603859.png") 
     
-    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D"] else "black"
+    # Decidir color de texto (Blanco o Negro)
+    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # --- AQUÍ EMPIEZA EL HTML CORREGIDO ---
-    # El <img> ahora está directamente dentro del champion-card, no en un div aparte
-    st.markdown(f"""
+    # --- HTML DEL CAMPEÓN (Separado en variable para evitar errores) ---
+    html_campeon = f"""
     <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
         <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
-        
         <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
-        
         <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
         <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
     </div>
-    """, unsafe_allow_html=True) 
+    """
+    st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # 2. ÚLTIMO PARTIDO
+    # --- ÚLTIMO PARTIDO ---
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
+    # HTML del Partido (Separado en variable)
+    html_partido = f"""
+    <div class="match-card">
+        <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
+        <div style="font-size: 1.5rem; font-weight: bold;">
+            {ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
+        </div>
+        <div style="font-size: 1.2rem; margin-top: 5px;">
+            Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
+        </div>
+    </div>
+    """
+    
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
-        st.markdown(f"""
-        <div class="match-card">
-            <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
-            <div style="font-size: 1.5rem; font-weight: bold;">
-                {ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
-            </div>
-            <div style="font-size: 1.2rem; margin-top: 5px;">
-                Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
+        st.markdown(html_partido, unsafe_allow_html=True)
+
 def pagina_clasificacion():
     st.title("📊 Clasificación Oficial")
     
@@ -143,27 +147,19 @@ def pagina_clasificacion():
     
     df = pd.DataFrame(data)
     
-    # 1. RENOMBRADO
-    cols_map = {
-        "T": "PJ", 
-        "Partidos con Trofeo": "PcT", 
-        "Mejor Racha": "MJ", 
-        "Destronamientos": "Des", 
-        "Intentos": "I"
-    }
+    # Renombrar columnas
+    cols_map = {"T": "PJ", "Partidos con Trofeo": "PcT", "Mejor Racha": "MJ", "Destronamientos": "Des", "Intentos": "I"}
     df = df.rename(columns=cols_map)
 
-    # 2. RECÁLCULO DE EMERGENCIA
+    # Recálculo numérico
     for col in ['P', 'PJ', 'Des', 'I']:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Calculamos PPP
     df['PPP'] = df.apply(lambda x: x['P'] / x['PJ'] if x['PJ'] > 0 else 0.0, axis=1)
-    # Calculamos ID
     df['ID'] = df.apply(lambda x: (x['Des'] / x['I']) * 100 if x['I'] > 0 else 0.0, axis=1)
 
-    # 3. FORMATO VISUAL
+    # Visualización
     historial = cargar_datos_gsheets("HistorialPartidos")
     campeon = obtener_campeon_actual(historial)
 
@@ -178,12 +174,11 @@ def pagina_clasificacion():
     df['PPP'] = df['PPP'].map('{:,.2f}'.format)
     df['ID'] = df['ID'].map('{:,.2f}%'.format)
 
-    # 4. ORDEN FINAL
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # --- LEYENDA ACTUALIZADA ---
-    st.markdown("""
+    # HTML Leyenda (Separado en variable)
+    html_leyenda = """
     <div class="leyenda-container">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -200,13 +195,12 @@ def pagina_clasificacion():
         <div>• <b>Des:</b> Destronamientos (Número de veces que le ha ganado al campeón)</div>
         <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
     </div>
-    """, unsafe_allow_html=True)
-    
+    """
+    st.markdown(html_leyenda, unsafe_allow_html=True)
     st.dataframe(df[cols_finales], hide_index=True, use_container_width=True)
 
 def pagina_estadisticas():
     st.title("⭐ Salón de la Fama")
-    
     col1, col2 = st.columns(2)
     
     with col1:
