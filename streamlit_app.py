@@ -136,6 +136,7 @@ st.markdown("""
         border-radius: 10px;
         border-left: 5px solid #ff4b4b;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px; /* Espacio extra abajo */
     }
     .leyenda-container {
         background-color: #e8f4f8;
@@ -176,7 +177,7 @@ def cargar_datos_gsheets(nombre_hoja):
     except Exception as e:
         return []
 
-# --- LÓGICA DE AYUDA (MODIFICADA PARA SACAR LA FECHA) ---
+# --- LÓGICA DE AYUDA ---
 def obtener_datos_campeon(historial):
     if not historial: return "Vacante", None
     portador = None
@@ -196,7 +197,7 @@ def obtener_datos_campeon(historial):
                 aspirante = ganador if perdedor == portador else perdedor
                 if resultado == "Victoria" and ganador == aspirante:
                     portador = aspirante
-                    fecha_inicio = fecha_partido # Se reinicia el contador con el nuevo campeón
+                    fecha_inicio = fecha_partido 
                     
     return portador, fecha_inicio
 
@@ -234,23 +235,20 @@ def pagina_inicio():
 
     campeon, fecha_inicio_str = obtener_datos_campeon(historial)
     
-    # --- CÁLCULO DEL TIEMPO (CORREGIDO Y ROBUSTO) ---
     texto_tiempo = "Recién coronado"
     if fecha_inicio_str:
         try:
-            # Usamos pandas para entender cualquier formato de fecha (DD/MM/YYYY o YYYY-MM-DD)
             fecha_inicio = pd.to_datetime(fecha_inicio_str, dayfirst=True)
             ahora = pd.Timestamp.now()
             diferencia = ahora - fecha_inicio
             
             dias = diferencia.days
-            segundos_totales = difference = diferencia.seconds
+            segundos_totales = diferencia.seconds
             horas = segundos_totales // 3600
             minutos = (segundos_totales % 3600) // 60
             
             texto_tiempo = f"⏳ {dias} días, {horas}h, {minutos}m defendiendo el título"
         except Exception as e:
-            # Si falla, mostramos la fecha tal cual para saber qué pasa, o un texto genérico
             texto_tiempo = f"Desde: {fecha_inicio_str}"
 
     colores = globals().get('COLORES_EQUIPOS', {}) 
@@ -261,7 +259,7 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # 1. TARJETA DEL CAMPEÓN
+    # --- 1. CAMPEÓN ACTUAL (Arriba) ---
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -275,8 +273,30 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # 2. DESCRIPCIÓN Y VIDEO
-    html_desc = """
+    # --- 2. ÚLTIMO PARTIDO (En medio) ---
+    ultimo = historial[-1]
+    res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
+    
+    html_partido = f"""
+<div class="match-card">
+<div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
+<div style="font-size: 1.5rem; font-weight: bold;">
+{ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
+</div>
+<div style="font-size: 1.2rem; margin-top: 5px;">
+Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
+</div>
+</div>
+"""
+    # Usamos columnas para centrarlo
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.markdown(html_partido, unsafe_allow_html=True)
+
+    # --- 3. INFORMACIÓN Y VIDEO (Abajo) ---
+    # Reutilizamos las mismas columnas para mantener la alineación
+    with col2:
+        html_desc = """
 <div class="desc-card">
 <div class="desc-title">¿Qué es el ToNOI?</div>
 <p><b>¿Te imaginas que pasaría si en el fútbol se decidiera quién es el campeón como se hace en el boxeo?</b> Pues nosotros estamos aquí para contarlo.</p>
@@ -293,30 +313,11 @@ def pagina_inicio():
 <p style="margin-top: 15px; text-align: center; font-weight: bold;">Sumérgete con nosotros en esta aventura y disfruta del fútbol como nunca.</p>
 </div>
 """
-    st.markdown(html_desc, unsafe_allow_html=True)
-    
-    st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
-    st.video("https://youtu.be/SpRxKO4BRfk")
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # 3. ÚLTIMO PARTIDO
-    ultimo = historial[-1]
-    res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
-    
-    html_partido = f"""
-<div class="match-card">
-<div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
-<div style="font-size: 1.5rem; font-weight: bold;">
-{ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
-</div>
-<div style="font-size: 1.2rem; margin-top: 5px;">
-Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
-</div>
-</div>
-"""
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col2:
-        st.markdown(html_partido, unsafe_allow_html=True)
+        st.markdown(html_desc, unsafe_allow_html=True)
+        
+        st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
+        st.video("https://youtu.be/SpRxKO4BRfk")
+        st.markdown("<br>", unsafe_allow_html=True)
 
 def pagina_clasificacion():
     st.header("📊 Clasificación Oficial") 
