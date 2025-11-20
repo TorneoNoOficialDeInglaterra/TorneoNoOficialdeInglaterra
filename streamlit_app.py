@@ -235,7 +235,7 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # 1. TARJETA DEL CAMPEÓN
+    # 1. TARJETA DEL CAMPEÓN (ANCHO COMPLETO)
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -246,11 +246,8 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # 2. DESCRIPCIÓN Y VIDEO (CORREGIDO SIN ESPACIOS)
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col2:
-        # ¡AQUÍ ESTABA EL ERROR! AHORA SIN ESPACIOS A LA IZQUIERDA:
-        html_desc = """
+    # 2. DESCRIPCIÓN Y VIDEO (AHORA EN ANCHO COMPLETO)
+    html_desc = """
 <div class="desc-card">
 <div class="desc-title">¿Qué es el ToNOI?</div>
 <p><b>¿Te imaginas que pasaría si en el fútbol se decidiera quién es el campeón como se hace en el boxeo?</b> Pues nosotros estamos aquí para contarlo.</p>
@@ -267,13 +264,13 @@ def pagina_inicio():
 <p style="margin-top: 15px; text-align: center; font-weight: bold;">Sumérgete con nosotros en esta aventura y disfruta del fútbol como nunca.</p>
 </div>
 """
-        st.markdown(html_desc, unsafe_allow_html=True)
-        
-        st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
-        st.video("https://youtu.be/SpRxKO4BRfk")
-        st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(html_desc, unsafe_allow_html=True)
+    
+    st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
+    st.video("https://youtu.be/SpRxKO4BRfk")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # 3. ÚLTIMO PARTIDO
+    # 3. ÚLTIMO PARTIDO (ESTE SÍ LO CENTRAMOS EN COLUMNAS PARA QUE NO SE VEA GIGANTE)
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
@@ -288,6 +285,8 @@ Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
 </div>
 </div>
 """
+    # Usamos columnas solo para este elemento
+    col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         st.markdown(html_partido, unsafe_allow_html=True)
 
