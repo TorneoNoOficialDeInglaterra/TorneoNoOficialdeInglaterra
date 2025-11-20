@@ -8,6 +8,12 @@ COLORES_EQUIPOS = {
     # Si un equipo no está aquí, saldrá Dorado por defecto
 }
 
+# --- DICCIONARIO DE ESCUDOS (Logos) ---
+LOGOS_EQUIPOS = {
+    # He puesto el enlace directo al PNG de Wikipedia
+    "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+}
+
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
     page_title="ToNOI - Resultados",
@@ -87,25 +93,31 @@ def pagina_inicio():
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
-    # 1. TARJETA DEL CAMPEÓN (Dinámica)
+    # 1. LOGOS Y COLORES
     campeon = obtener_campeon_actual(historial)
     
-    # Buscamos el color en el diccionario. Si no existe, usa Dorado (#FFD700)
-    color_fondo = COLORES_EQUIPOS.get(campeon, "#FFD700")
+    colores = globals().get('COLORES_EQUIPOS', {}) 
+    logos = globals().get('LOGOS_EQUIPOS', {})
     
-    # Lógica simple para el texto: Si el fondo es negro/oscuro, pon letras blancas.
-    # Si usas colores muy claros, cambia 'white' por 'black' manualmente aquí.
-    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#DarkRed"] else "black"
+    color_fondo = colores.get(campeon, "#FFD700") 
+    # Logo por defecto (Copa) si no encuentra el del equipo
+    logo_url = logos.get(campeon, "https://cdn-icons-png.flaticon.com/512/1603/1603859.png") 
+    
+    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D"] else "black"
 
+    # --- AQUÍ EMPIEZA EL HTML ---
     st.markdown(f"""
     <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
-        <div style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
-        <div style="font-size: 3.5rem; font-weight: 800; margin: 10px 0;">{campeon}</div>
-        <div style="font-size: 1rem; opacity: 0.9;">Defendiendo el título actualmente</div>
+        <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
+        
+        <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
+        
+        <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
+        <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
     </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True) 
 
-    # 2. ÚLTIMO PARTIDO (Esto sigue igual)
+    # 2. ÚLTIMO PARTIDO
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
@@ -131,11 +143,11 @@ def pagina_clasificacion():
     
     df = pd.DataFrame(data)
     
-    # 1. RENOMBRADO (He cambiado MR por MJ para que coincida con tu leyenda)
+    # 1. RENOMBRADO
     cols_map = {
         "T": "PJ", 
         "Partidos con Trofeo": "PcT", 
-        "Mejor Racha": "MJ", # Antes era MR, ahora MJ
+        "Mejor Racha": "MJ", 
         "Destronamientos": "Des", 
         "Intentos": "I"
     }
@@ -166,11 +178,11 @@ def pagina_clasificacion():
     df['PPP'] = df['PPP'].map('{:,.2f}'.format)
     df['ID'] = df['ID'].map('{:,.2f}%'.format)
 
-    # 4. ORDEN FINAL (Con MJ en vez de MR)
+    # 4. ORDEN FINAL
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
-    # --- LEYENDA ACTUALIZADA CON TUS TEXTOS ---
+    # --- LEYENDA ACTUALIZADA ---
     st.markdown("""
     <div class="leyenda-container">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
@@ -233,7 +245,4 @@ with tab3: pagina_estadisticas()
 with tab4: pagina_historial()
 
 st.markdown("---")
-
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
-
-
