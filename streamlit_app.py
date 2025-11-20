@@ -45,8 +45,8 @@ st.markdown("""
     /* --- NUEVO HEADER TIPO SANDWICH --- */
     .custom-header {
         display: flex;
-        justify-content: space-between; /* Separa los elementos a los extremos */
-        align-items: center; /* Centra verticalmente */
+        justify-content: space-between;
+        align-items: center;
         background-color: white;
         padding: 15px 25px;
         border-radius: 15px;
@@ -54,17 +54,13 @@ st.markdown("""
         margin-bottom: 25px;
         border-bottom: 4px solid #31333F;
     }
-    /* Secciones laterales para los logos */
-    .header-side {
-        flex: 0 0 auto;
-    }
+    .header-side { flex: 0 0 auto; }
     .header-logo {
-        width: 90px; /* Un poco más grandes */
+        width: 90px;
         height: auto;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         display: block;
     }
-    /* Sección central */
     .header-center {
         flex: 1;
         text-align: center;
@@ -73,11 +69,10 @@ st.markdown("""
         align-items: center;
         padding: 0 20px;
     }
-    /* Título ROJO y GRANDE */
     .header-title {
-        font-size: 2.2rem; /* Mucho más grande */
-        font-weight: 900; /* Más grueso */
-        color: #D00000; /* ROJO INTENSO */
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #D00000;
         margin: 0;
         line-height: 1.1;
         text-transform: uppercase;
@@ -85,11 +80,7 @@ st.markdown("""
     .header-subtitle {
         font-size: 1rem; color: #555; margin-bottom: 15px; font-weight: bold;
     }
-    .header-socials {
-        display: flex;
-        gap: 15px;
-    }
-    /* Botones sociales */
+    .header-socials { display: flex; gap: 15px; }
     .social-btn {
         text-decoration: none !important;
         padding: 8px 16px;
@@ -117,6 +108,27 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
+    /* ESTILO NUEVO PARA LA DESCRIPCIÓN */
+    .desc-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        text-align: justify;
+    }
+    .desc-title {
+        font-weight: 800;
+        color: #31333F;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f0f2f6;
+        padding-bottom: 5px;
+    }
     .match-card {
         background-color: white;
         padding: 15px;
@@ -143,7 +155,6 @@ st.markdown("""
         color: #856404; 
         font-size: 0.9rem;
     }
-    /* Ajuste para móviles: en pantallas pequeñas, apilar verticalmente */
     @media (max-width: 768px) {
         .custom-header { flex-direction: column; gap: 15px; padding: 15px; }
         .header-title { font-size: 1.5rem; }
@@ -182,14 +193,12 @@ def obtener_campeon_actual(historial):
                     portador = aspirante
     return portador
 
-# --- HEADER GLOBAL (ESTRUCTURA SANDWICH) ---
+# --- HEADER GLOBAL ---
 def mostrar_header():
     img_url = "https://github.com/TorneoNoOficialDeInglaterra/TorneoNoOficialdeInglaterra/blob/main/logo.png?raw=true"
     x_url = "https://x.com/ToNOI_oficial"
     wa_url = "https://whatsapp.com/channel/0029Vb6s1kSJ93wblhQfYY3q"
     
-    # IMPORTANTE: Todo el HTML pegado a la izquierda.
-    # Estructura: LogoIzq - Centro - LogoDer
     html_header = f"""
 <div class="custom-header">
 <div class="header-side">
@@ -226,6 +235,7 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
+    # 1. TARJETA DEL CAMPEÓN
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -236,6 +246,37 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
+    # 2. DESCRIPCIÓN Y VIDEO (Nuevo)
+    # Usamos columnas para centrarlo igual que la tarjeta del último partido
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        # Tarjeta de texto
+        html_desc = """
+<div class="desc-card">
+    <div class="desc-title">¿Qué es el ToNOI?</div>
+    <p><b>¿Te imaginas que pasaría si en el fútbol se decidiera quién es el campeón como se hace en el boxeo?</b> Pues nosotros estamos aquí para contarlo.</p>
+    <p>El <b>Torneo No Oficial de Inglaterra (ToNOI)</b> es un campeonato en el que para ser campeón debes ganar al actual campeón. No existen fase de grupos, eliminatorias ni nada por el estilo, solo finales. Si te enfrentas al equipo campeón y resultas victorioso, serás el nuevo <b>CAMPEÓN NO OFICIAL DE INGLATERRA</b> y comenzarás a hacer historia hasta verte derrotado por otro equipo.</p>
+    
+    <div class="desc-title" style="font-size: 1rem; margin-top: 15px;">📜 Reglamento Oficial</div>
+    <ul style="margin-left: 20px; padding: 0;">
+        <li>Si ganas al actual campeón, te conviertes en campeón.</li>
+        <li>Solo valen partidos oficiales.</li>
+        <li>Si en una liga no hay registros oficiales se contará el siguiente partido oficial.</li>
+        <li>En caso de desaparición del club campeón, el título vuelve al anterior campeón.</li>
+        <li>Todas las prórrogas cuentan.</li>
+        <li><b>Los penaltis cuentan:</b> si el partido acaba en empate global o requiere desempate, el ganador se lleva el título.</li>
+    </ul>
+    <p style="margin-top: 15px; text-align: center; font-weight: bold;">Sumérgete con nosotros en esta aventura y disfruta del fútbol como nunca.</p>
+</div>
+"""
+        st.markdown(html_desc, unsafe_allow_html=True)
+        
+        # Video de YouTube embebido
+        st.info("🎥 **Para entenderlo mejor, te recomendamos este vídeo de La Media Inglesa:**")
+        st.video("https://youtu.be/SpRxKO4BRfk")
+        st.markdown("<br>", unsafe_allow_html=True) # Espacio extra
+
+    # 3. ÚLTIMO PARTIDO
     ultimo = historial[-1]
     res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
     
@@ -250,8 +291,6 @@ Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
 </div>
 </div>
 """
-    
-    col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         st.markdown(html_partido, unsafe_allow_html=True)
 
