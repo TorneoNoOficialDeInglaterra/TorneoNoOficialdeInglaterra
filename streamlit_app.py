@@ -165,29 +165,27 @@ def mostrar_header():
     x_url = "https://x.com/ToNOI_oficial"
     wa_url = "https://whatsapp.com/channel/0029Vb6s1kSJ93wblhQfYY3q"
     
+    # IMPORTANTE: Todo el HTML pegado a la izquierda sin espacios
     html_header = f"""
-    <div class="custom-header">
-        <img src="{img_url}" class="header-logo">
-        <div class="header-title">Torneo No Oficial de Inglaterra</div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">(ToNOI)</div>
-        
-        <div class="header-socials">
-            <a href="{x_url}" target="_blank" class="social-btn btn-x">
-                <span>𝕏</span> Síguenos
-            </a>
-            <a href="{wa_url}" target="_blank" class="social-btn btn-wa">
-                <span>💬</span> WhatsApp
-            </a>
-        </div>
-    </div>
-    """
+<div class="custom-header">
+<img src="{img_url}" class="header-logo">
+<div class="header-title">Torneo No Oficial de Inglaterra</div>
+<div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">(ToNOI)</div>
+<div class="header-socials">
+<a href="{x_url}" target="_blank" class="social-btn btn-x">
+<span>𝕏</span> Síguenos
+</a>
+<a href="{wa_url}" target="_blank" class="social-btn btn-wa">
+<span>💬</span> WhatsApp
+</a>
+</div>
+</div>
+"""
     st.markdown(html_header, unsafe_allow_html=True)
 
 # --- PÁGINAS ---
 
 def pagina_inicio():
-    # Eliminado el título antiguo porque ya tenemos el Header Global
-    
     historial = cargar_datos_gsheets("HistorialPartidos")
     if not historial: st.info("El torneo aún no ha comenzado."); return
 
@@ -201,13 +199,13 @@ def pagina_inicio():
     
     color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
 
-    # Tarjeta Campeón
+    # IMPORTANTE: HTML pegado a la izquierda
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
-    <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
-    <img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
-    <div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
-    <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
+<div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
+<img src="{logo_url}" style="width: 120px; height: 120px; margin: 15px auto; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.3)); object-fit: contain;">
+<div style="font-size: 3rem; font-weight: 800; margin: 5px 0; line-height: 1;">{campeon}</div>
+<div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px;">Defendiendo el título actualmente</div>
 </div>
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
@@ -217,13 +215,13 @@ def pagina_inicio():
     
     html_partido = f"""
 <div class="match-card">
-    <div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
-    <div style="font-size: 1.5rem; font-weight: bold;">
-        {ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
-    </div>
-    <div style="font-size: 1.2rem; margin-top: 5px;">
-        Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
-    </div>
+<div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
+<div style="font-size: 1.5rem; font-weight: bold;">
+{ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
+</div>
+<div style="font-size: 1.2rem; margin-top: 5px;">
+Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
+</div>
 </div>
 """
     
@@ -232,7 +230,7 @@ def pagina_inicio():
         st.markdown(html_partido, unsafe_allow_html=True)
 
 def pagina_clasificacion():
-    st.header("📊 Clasificación Oficial") # Header más pequeño
+    st.header("📊 Clasificación Oficial") 
     
     data = cargar_datos_gsheets("Hoja1")
     if not data: st.warning("No hay datos disponibles."); return
@@ -266,22 +264,23 @@ def pagina_clasificacion():
     orden_cols = ["Pos.", "Equipo", "PJ", "V", "E", "D", "P", "GF", "GC", "DG", "PPP", "PcT", "MJ", "Des", "I", "ID"]
     cols_finales = [c for c in orden_cols if c in df.columns]
     
+    # IMPORTANTE: HTML pegado a la izquierda
     html_leyenda = """
 <div class="leyenda-container">
-    <div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div>• <b>PJ:</b> Partidos Jugados</div>
-        <div>• <b>V/E/D:</b> Victorias / Empates / Derrotas</div>
-        <div>• <b>P:</b> Puntos Totales</div>
-        <div>• <b>PPP:</b> Puntos por Partido</div>
-        <div>• <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia</div>
-        <div>• <b>PcT:</b> Partidos con Trofeo</div>
-    </div>
-    <hr style="margin: 10px 0; border-color: #d1e7dd;">
-    <div>• <b>MJ:</b> Mejor racha (partidos seguidos con el trofeo)</div>
-    <div>• <b>I:</b> Número de intentos para destronar al campeón</div>
-    <div>• <b>Des:</b> Destronamientos (títulos ganados)</div>
-    <div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
+<div style="font-weight: bold; margin-bottom: 8px; font-size: 1rem;">📖 GLOSARIO DE DATOS:</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+<div>• <b>PJ:</b> Partidos Jugados</div>
+<div>• <b>V/E/D:</b> Victorias / Empates / Derrotas</div>
+<div>• <b>P:</b> Puntos Totales</div>
+<div>• <b>PPP:</b> Puntos por Partido</div>
+<div>• <b>GF/GC/DG:</b> Goles Favor / Contra / Diferencia</div>
+<div>• <b>PcT:</b> Partidos con Trofeo</div>
+</div>
+<hr style="margin: 10px 0; border-color: #d1e7dd;">
+<div>• <b>MJ:</b> Mejor racha (partidos seguidos con el trofeo)</div>
+<div>• <b>I:</b> Número de intentos para destronar al campeón</div>
+<div>• <b>Des:</b> Destronamientos (títulos ganados)</div>
+<div>• <b>ID:</b> Porcentaje de éxito (Des/I)</div>
 </div>
 """
     st.markdown(html_leyenda, unsafe_allow_html=True)
@@ -289,13 +288,13 @@ def pagina_clasificacion():
 
     html_reglas = """
 <div class="reglas-container">
-    <div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
-    <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
-        <li><b>Victoria:</b> 2 Puntos</li>
-        <li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
-        <li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
-        <li><b>Derrota:</b> 0 Puntos</li>
-    </ul>
+<div style="font-weight: bold; margin-bottom: 8px;">⚖️ SISTEMA DE PUNTUACIÓN:</div>
+<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+<li><b>Victoria:</b> 2 Puntos</li>
+<li><b>Empate (Siendo Campeón):</b> 1 Punto (Retiene título)</li>
+<li><b>Empate (Siendo Aspirante):</b> 0 Puntos</li>
+<li><b>Derrota:</b> 0 Puntos</li>
+</ul>
 </div>
 """
     st.markdown(html_reglas, unsafe_allow_html=True)
