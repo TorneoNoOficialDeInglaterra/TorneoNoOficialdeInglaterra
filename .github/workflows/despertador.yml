@@ -2,16 +2,16 @@ name: Despertador ToNOI
 
 on:
   schedule:
-    # Ejecutar cada 30 minutos (minuto 0 y minuto 30 de cada hora)
+    # Ejecutar cada 30 minutos
     - cron: '0,30 * * * *'
-  workflow_dispatch: # Permite ejecutarlo manualmente si quieres probar
+  workflow_dispatch:
 
 jobs:
   wake_up:
     runs-on: ubuntu-latest
     steps:
-      - name: Visitar la Web como un Humano
+      - name: Despertar Web
         run: |
-          curl -I -L \
+          curl -L --max-time 30 \
           -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
-          https://torneonooficialdeinglaterra.streamlit.app/
+          https://torneonooficialdeinglaterra.streamlit.app/ || true
