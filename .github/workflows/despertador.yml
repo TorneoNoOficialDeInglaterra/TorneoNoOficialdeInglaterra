@@ -1,17 +1,34 @@
-name: Despertador ToNOI
+name: Despertador ToNOI (Insistente)
 
 on:
   schedule:
-    # Ejecutar cada 30 minutos
-    - cron: '0,30 * * * *'
+    # Ejecutar cada 15 minutos (aumentamos la frecuencia)
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
   wake_up:
     runs-on: ubuntu-latest
     steps:
-      - name: Despertar Web
+      - name: Despertar Web (Bucle de Insistencia)
         run: |
-          curl -L --max-time 30 \
-          -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
-          https://torneonooficialdeinglaterra.streamlit.app/ || true
+          echo "Iniciando protocolo de despertado..."
+          
+          # Hacemos un bucle de 5 intentos
+          for i in {1..5}
+          do
+            echo "--- Intento número $i ---"
+            
+            # 1. Visitamos la puerta de salud (Health Check)
+            curl -I -L --max-time 10 https://torneonooficialdeinglaterra.streamlit.app/_stcore/health || true
+            
+            # 2. Visitamos la portada como un humano
+            curl -I -L --max-time 10 \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" \
+            https://torneonooficialdeinglaterra.streamlit.app/ || true
+            
+            # 3. Esperamos 12 segundos para dar tiempo al servidor a reaccionar
+            sleep 12
+          done
+          
+          echo "Protocolo finalizado. La web debería estar despierta."
