@@ -6,6 +6,7 @@ from datetime import datetime
 # --- 1. DICCIONARIO DE COLORES ---
 COLORES_EQUIPOS = {
     "FC Bayern Munich": "#DC052D",
+    "Arsenal": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
     # Añade más equipos aquí...
@@ -14,6 +15,7 @@ COLORES_EQUIPOS = {
 # --- 2. DICCIONARIO DE ESCUDOS ---
 LOGOS_EQUIPOS = {
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+    "Arsenal": "https://static.wikia.nocookie.net/futbol/images/8/82/Arsenal_FC.png/revision/latest?cb=20070112180839"
     # Añade más logos aquí...
 }
 
@@ -434,3 +436,4 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
