@@ -16,6 +16,7 @@ COLORES_EQUIPOS = {
 LOGOS_EQUIPOS = {
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
     "Arsenal": "https://upload.wikimedia.org/wikipedia/hif/8/82/Arsenal_FC.png"
+    "Aston Villa": "https://1000logos.net/wp-content/uploads/2022/05/Aston-Villa-Logo-2016.png"
     # Añade más logos aquí...
 }
 
@@ -436,5 +437,6 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
 
 
