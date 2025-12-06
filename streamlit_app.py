@@ -6,11 +6,12 @@ from datetime import datetime
 # --- 1. DICCIONARIO DE COLORES ---
 COLORES_EQUIPOS = {
     "FC Bayern Munich": "#DC052D",
-    "Arsenal": "#DC052D",
+    "Arsenal": "#EF0107", # Rojo Arsenal
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
-    "Aston Villa": "#BF082B", # He corregido el color (faltaba la almohadilla #)
-    # Añade más equipos aquí...
+    "Aston Villa": "#95B6C5",
+    "Manchester City": "#6CABDD",
+    "Liverpool": "#C8102E",
 }
 
 # --- 2. DICCIONARIO DE ESCUDOS ---
@@ -18,7 +19,6 @@ LOGOS_EQUIPOS = {
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
     "Arsenal": "https://upload.wikimedia.org/wikipedia/hif/8/82/Arsenal_FC.png",      
     "Aston Villa": "https://upload.wikimedia.org/wikipedia/pt/thumb/1/15/Aston_Villa.svg/732px-Aston_Villa.svg.png"
-    # Añade más logos aquí...
 }
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
@@ -32,22 +32,18 @@ st.set_page_config(
 # --- ESTILOS CSS ---
 st.markdown("""
 <style>
-    /* 1. LIMPIEZA DE INTERFAZ */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stAppDeployButton {display: none;}
     
-    /* ESTO QUITA EL HUECO BLANCO DE ARRIBA */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 5rem !important;
     }
     
-    /* 2. ESTILOS DE LA APP */
     .stApp { background-color: #f0f2f6; }
     
-    /* --- HEADER --- */
     .custom-header {
         display: flex;
         justify-content: space-between;
@@ -103,7 +99,6 @@ st.markdown("""
     .btn-x { background-color: #000000; color: white !important; }
     .btn-wa { background-color: #25D366; color: white !important; }
 
-    /* --- TARJETAS --- */
     .champion-card {
         background-color: #FFD700;
         padding: 20px;
@@ -241,7 +236,8 @@ def pagina_inicio():
     texto_tiempo = "Recién coronado"
     if fecha_inicio_str:
         try:
-            fecha_inicio = pd.to_datetime(fecha_inicio_str, dayfirst=True)
+            # CORRECCIÓN AQUÍ: Quitamos 'dayfirst=True' para que detecte mejor los formatos mixtos (US/EU)
+            fecha_inicio = pd.to_datetime(fecha_inicio_str) 
             ahora = pd.Timestamp.now()
             diferencia = ahora - fecha_inicio
             
@@ -276,13 +272,13 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # --- 2. ÚLTIMO PARTIDO (BLINDADO CONTRA ERRORES) ---
+    # --- 2. ÚLTIMO PARTIDO ---
     ultimo = historial[-1]
     
-    # AQUÍ ESTÁ EL ARREGLO: Usamos .get() para evitar el KeyError
+    # Blindaje con .get()
     u_fecha = ultimo.get('Fecha', 'Fecha desconocida')
-    u_ganador = ultimo.get('Equipo Ganador', 'Equipo Local')
-    u_perdedor = ultimo.get('Equipo Perdedor', 'Equipo Visitante')
+    u_ganador = ultimo.get('Equipo Ganador', 'Equipo A')
+    u_perdedor = ultimo.get('Equipo Perdedor', 'Equipo B')
     u_resultado = ultimo.get('Resultado', 'Finalizado')
     u_manual = f"({ultimo.get('ResultadoManual', '')})" if ultimo.get('ResultadoManual') else ""
     
@@ -443,10 +439,6 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
-
-
-
-
 
 
 
