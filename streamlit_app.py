@@ -9,7 +9,7 @@ COLORES_EQUIPOS = {
     "Arsenal": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
-    "Aston Villa": "#95B6C5", # He corregido el color (faltaba la almohadilla #)
+    "Aston Villa": "#BF082B", # He corregido el color (faltaba la almohadilla #)
     # Añade más equipos aquí...
 }
 
@@ -443,6 +443,7 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
+
 
 
 
