@@ -9,19 +9,19 @@ COLORES_EQUIPOS = {
     "Arsenal": "#DC052D",
     "Real Madrid": "#000000",
     "FC Barcelona": "#A50044",
-    "Aston Villa": "BF082B",
+    "Aston Villa": "#95B6C5", # He corregido el color (faltaba la almohadilla #)
     # Añade más equipos aquí...
 }
 
 # --- 2. DICCIONARIO DE ESCUDOS ---
 LOGOS_EQUIPOS = {
     "FC Bayern Munich": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1024px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
-    "Arsenal": "https://upload.wikimedia.org/wikipedia/hif/8/82/Arsenal_FC.png",    
+    "Arsenal": "https://upload.wikimedia.org/wikipedia/hif/8/82/Arsenal_FC.png",      
     "Aston Villa": "https://upload.wikimedia.org/wikipedia/pt/thumb/1/15/Aston_Villa.svg/732px-Aston_Villa.svg.png"
     # Añade más logos aquí...
 }
 
-# --- CONFIGURACIÓN DE LA PÁGINA (ICONO CAMBIADO) ---
+# --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
     page_title="ToNOI - Resultados",
     page_icon="https://github.com/TorneoNoOficialDeInglaterra/TorneoNoOficialdeInglaterra/blob/main/logo.png?raw=true",
@@ -29,7 +29,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTILOS CSS (DISEÑO PRO) ---
+# --- ESTILOS CSS ---
 st.markdown("""
 <style>
     /* 1. LIMPIEZA DE INTERFAZ */
@@ -47,7 +47,7 @@ st.markdown("""
     /* 2. ESTILOS DE LA APP */
     .stApp { background-color: #f0f2f6; }
     
-    /* --- NUEVO HEADER TIPO SANDWICH --- */
+    /* --- HEADER --- */
     .custom-header {
         display: flex;
         justify-content: space-between;
@@ -113,7 +113,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
-    /* ESTILO NUEVO PARA LA DESCRIPCIÓN */
     .desc-card {
         background-color: white;
         padding: 20px;
@@ -140,7 +139,7 @@ st.markdown("""
         border-radius: 10px;
         border-left: 5px solid #ff4b4b;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 20px; /* Espacio extra abajo */
+        margin-bottom: 20px;
     }
     .leyenda-container {
         background-color: #e8f4f8;
@@ -261,9 +260,9 @@ def pagina_inicio():
     color_fondo = colores.get(campeon, "#FFD700") 
     logo_url = logos.get(campeon, "https://cdn-icons-png.flaticon.com/512/1603/1603859.png") 
     
-    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044"] else "black"
+    color_texto = "white" if color_fondo in ["#000000", "#0000FF", "#8B0000", "#DC052D", "#A50044", "#BF082B"] else "black"
 
-    # --- 1. CAMPEÓN ACTUAL (Arriba) ---
+    # --- 1. CAMPEÓN ACTUAL ---
     html_campeon = f"""
 <div class="champion-card" style="background-color: {color_fondo}; color: {color_texto};">
 <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">🏆 Campeón Actual 🏆</div>
@@ -277,18 +276,24 @@ def pagina_inicio():
 """
     st.markdown(html_campeon, unsafe_allow_html=True)
 
-    # --- 2. ÚLTIMO PARTIDO (En medio) ---
+    # --- 2. ÚLTIMO PARTIDO (BLINDADO CONTRA ERRORES) ---
     ultimo = historial[-1]
-    res_manual = f"({ultimo['ResultadoManual']})" if ultimo.get('ResultadoManual') else ""
+    
+    # AQUÍ ESTÁ EL ARREGLO: Usamos .get() para evitar el KeyError
+    u_fecha = ultimo.get('Fecha', 'Fecha desconocida')
+    u_ganador = ultimo.get('Equipo Ganador', 'Equipo Local')
+    u_perdedor = ultimo.get('Equipo Perdedor', 'Equipo Visitante')
+    u_resultado = ultimo.get('Resultado', 'Finalizado')
+    u_manual = f"({ultimo.get('ResultadoManual', '')})" if ultimo.get('ResultadoManual') else ""
     
     html_partido = f"""
 <div class="match-card">
-<div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({ultimo['Fecha']})</div>
+<div style="color: #666; font-size: 0.8rem; margin-bottom: 5px;">📢 ÚLTIMO RESULTADO ({u_fecha})</div>
 <div style="font-size: 1.5rem; font-weight: bold;">
-{ultimo['Equipo Ganador']} <span style='color:#ff4b4b'>vs</span> {ultimo['Equipo Perdedor']}
+{u_ganador} <span style='color:#ff4b4b'>vs</span> {u_perdedor}
 </div>
 <div style="font-size: 1.2rem; margin-top: 5px;">
-Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
+Resultado: <b>{u_resultado}</b> {u_manual}
 </div>
 </div>
 """
@@ -297,7 +302,7 @@ Resultado: <b>{ultimo['Resultado']}</b> {res_manual}
     with col2:
         st.markdown(html_partido, unsafe_allow_html=True)
 
-    # --- 3. INFORMACIÓN Y VIDEO (Abajo) ---
+    # --- 3. INFORMACIÓN Y VIDEO ---
     with col2:
         html_desc = """
 <div class="desc-card">
@@ -438,7 +443,6 @@ with tab4: pagina_historial()
 # Footer simple
 st.markdown("---")
 st.caption("🔄 Los datos se actualizan automáticamente cada minuto.")
-
 
 
 
