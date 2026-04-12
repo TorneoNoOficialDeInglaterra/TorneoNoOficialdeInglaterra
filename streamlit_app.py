@@ -13,7 +13,7 @@ COLORES_EQUIPOS = {
     "Manchester City": "#6CABDD",
     "Liverpool": "#C8102E",
     "Manchester United": "#C8102E",
-    "RCD Mallorca": "E34234"
+    "RCD Mallorca": "#BD1B0D"
 }
 
 # --- 2. DICCIONARIO DE ESCUDOS ---
