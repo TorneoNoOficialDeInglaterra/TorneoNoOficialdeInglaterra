@@ -12,7 +12,8 @@ COLORES_EQUIPOS = {
     "Aston Villa": "#BF082B",
     "Manchester City": "#6CABDD",
     "Liverpool": "#C8102E",
-    "Manchester United": "#C8102E"
+    "Manchester United": "#C8102E",
+    "RCD Mallorca": "B50202"
 }
 
 # --- 2. DICCIONARIO DE ESCUDOS ---
@@ -21,7 +22,8 @@ LOGOS_EQUIPOS = {
     "Arsenal": "https://upload.wikimedia.org/wikipedia/hif/8/82/Arsenal_FC.png",      
     "Aston Villa": "https://upload.wikimedia.org/wikipedia/pt/thumb/1/15/Aston_Villa.svg/732px-Aston_Villa.svg.png",
     "Manchester United": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/360.png",
-    "Real Madrid CF": "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/960px-Real_Madrid_CF.svg.png"
+    "Real Madrid CF": "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/960px-Real_Madrid_CF.svg.png",
+    "RCD Mallorca": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Rcd_mallorca.svg/960px-Rcd_mallorca.svg.png"
 }
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
