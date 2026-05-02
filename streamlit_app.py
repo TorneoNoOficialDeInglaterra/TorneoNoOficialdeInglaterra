@@ -28,6 +28,7 @@ LOGOS_EQUIPOS = {
     "RCD Mallorca": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Rcd_mallorca.svg/960px-Rcd_mallorca.svg.png",
     "Deportivo Alaves": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f8/Deportivo_Alaves_logo_%282020%29.svg/1280px-Deportivo_Alaves_logo_%282020%29.svg.png",
     "Athletic Club de Bilbao": "https://upload.wikimedia.org/wikipedia/en/thumb/9/98/Club_Athletic_Bilbao_logo.svg/1280px-Club_Athletic_Bilbao_logo.svg.png"
+}
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
     page_title="ToNOI - Resultados",
