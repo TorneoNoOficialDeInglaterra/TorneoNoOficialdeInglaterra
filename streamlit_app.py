@@ -15,7 +15,8 @@ COLORES_EQUIPOS = {
     "Manchester United": "#C8102E",
     "RCD Mallorca": "#BD1B0D",
     "Deportivo Alaves": "#1300FC",
-    "Athletic Club de Bilbao": "#EF0107"
+    "Athletic Club de Bilbao": "#EF0107".
+    "Valencia CF": "#FF6300"
 }
 
 # --- 2. DICCIONARIO DE ESCUDOS ---
@@ -27,7 +28,8 @@ LOGOS_EQUIPOS = {
     "Real Madrid CF": "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/960px-Real_Madrid_CF.svg.png",
     "RCD Mallorca": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Rcd_mallorca.svg/960px-Rcd_mallorca.svg.png",
     "Deportivo Alaves": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f8/Deportivo_Alaves_logo_%282020%29.svg/1280px-Deportivo_Alaves_logo_%282020%29.svg.png",
-    "Athletic Club de Bilbao": "https://upload.wikimedia.org/wikipedia/en/thumb/9/98/Club_Athletic_Bilbao_logo.svg/1280px-Club_Athletic_Bilbao_logo.svg.png"
+    "Athletic Club de Bilbao": "https://upload.wikimedia.org/wikipedia/en/thumb/9/98/Club_Athletic_Bilbao_logo.svg/1280px-Club_Athletic_Bilbao_logo.svg.png",
+    "Valencia CF": "https://upload.wikimedia.org/wikipedia/sco/thumb/c/ce/Valenciacf.svg/1920px-Valenciacf.svg.png"
 }
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
