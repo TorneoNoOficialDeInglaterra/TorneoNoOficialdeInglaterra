@@ -15,7 +15,7 @@ COLORES_EQUIPOS = {
     "Manchester United": "#C8102E",
     "RCD Mallorca": "#BD1B0D",
     "Deportivo Alaves": "#1300FC",
-    "Athletic Club de Bilbao": "#EF0107".
+    "Athletic Club de Bilbao": "#EF0107",
     "Valencia CF": "#FF6300"
 }
 
